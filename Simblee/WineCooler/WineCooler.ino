@@ -580,7 +580,11 @@ void loop() {
             }
           }
           Serial.println(bottle);
+  #ifdef DEMO 
+          leds[recalc(removeDetected)] = color2;
+  #else
           leds[removeDetected] = color2;
+  #endif
           FastLED.show();
           SimbleeForMobile.updateText(removePopUpRackNumber, ChillerSlot[removeDetected]);
           SimbleeForMobile.setVisible(insertScreen1, true);
