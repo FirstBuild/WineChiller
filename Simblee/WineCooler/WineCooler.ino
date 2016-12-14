@@ -35,6 +35,8 @@
 #define numberOfWines 10
 #define INSERT_WINE_TIMEOUT 3000
 
+#define DEMO 1
+
 #define WineSpashScreen 1
 #define ColumbiaCrest1 2
 #define ColumbiaCrest2 3
@@ -133,8 +135,7 @@ Wine wine[25] = {Wine("Grand Estates", "Columbia Crest",  "2003", "Cabernet Sauv
 std::vector<Wine> History;
 
 //SCREEN 1 BASE*********************************************************************************
-void splashScreen()
-{
+void splashScreen() {
   SimbleeForMobile.beginScreen(WHITE, PORTRAIT);
   SimbleeForMobile.drawRect(0, 0, 320, 570, GE_RED);
   SimbleeForMobile.drawText(20, 200, "LOADING", WHITE, 50);
@@ -146,8 +147,7 @@ void splashScreen()
 //************************************************************************************************
 
 //SCREEN 2 BASE*********************************************************************************
-void inventoryScreen()
-{
+void inventoryScreen() {
   SimbleeForMobile.beginScreen(WHITE, PORTRAIT);
 
   //BACKGROUND
@@ -249,8 +249,7 @@ void inventoryScreen()
 //************************************************************************************************
 
 //SCREEN 5 BASE*********************************************************************************
-void addScreen()
-{
+void addScreen() {
   SimbleeForMobile.beginScreen();
 
   //BACKGROUND
@@ -552,7 +551,11 @@ void checkAdd() {
       currentButtonState[i] = nextButtonState[i];
       updatePage = true;
       addMode = 1;
+  #ifdef DEMO 
+      leds[recalc(addDetected)] = color;
+  #else
       leds[addDetected] = color;
+  #endif
     }
   }
 }
@@ -586,7 +589,11 @@ void compareStates() {
     FastLED.show();
   }
   else {
+  #ifdef DEMO 
+    leds[recalc(switchDetected)] = color;
+  #else
     leds[switchDetected] = color;
+  #endif
     FastLED.show();
   }
 }
@@ -599,8 +606,7 @@ void showWineInsertScreen() {
   compareStates();
 }
 
-void removeBottle()
-{
+void removeBottle() {
   SimbleeForMobile.setVisible(removeScreen1, true);
   SimbleeForMobile.setVisible(removeScreen2, true);
   SimbleeForMobile.setVisible(removeScreen3, true);
@@ -608,7 +614,11 @@ void removeBottle()
   SimbleeForMobile.setVisible(removeScreen4, true);
   for (int i = 0; i < 25; i++) {
     if (ChillerSlot[i] == ChillerSlot[wine[clickedOverlay + ((winePage - 1) * 5)].getIndex()]) {
+  #ifdef DEMO 
+      leds[recalc(i)] = color2;
+  #else
       leds[i] = color2;
+  #endif
       break;
     }
   }
@@ -631,13 +641,66 @@ void removeBottle()
   delay(100);
   SimbleeForMobile.showScreen(2);
 }
-// Inializing vector of Slots for TESTBOX units.
-//   Should not have problems with corresponding
-//   switch and led positions.
-void setup()
-{
-  Serial.begin(9600);
 
+
+void initializePins() {
+  Slot temp1 = Slot(2, leds[0]);
+  Slot temp2 = Slot(3, leds[1]);
+  Slot temp3 = Slot(4, leds[2]);
+  Slot temp4 = Slot(6, leds[3]);
+  Slot temp5 = Slot(7, leds[4]);
+  Slot temp6 = Slot(8, leds[5]);
+  Slot temp7 = Slot(9, leds[6]);
+  Slot temp8 = Slot(10, leds[7]);
+  Slot temp9 = Slot(11, leds[8]);
+  Slot temp10 = Slot(12, leds[9]);
+  Slot temp11 = Slot(13, leds[10]);
+  Slot temp12 = Slot(14, leds[11]);
+  Slot temp13 = Slot(15, leds[12]);
+  Slot temp14 = Slot(16, leds[13]);
+  Slot temp15 = Slot(17, leds[14]);
+
+  Slot temp16 = Slot(18, leds[15]);
+  Slot temp17 = Slot(19, leds[16]);
+  Slot temp18 = Slot(20, leds[17]);
+  Slot temp19 = Slot(21, leds[18]);
+  Slot temp20 = Slot(22, leds[19]);
+
+  Slot temp21 = Slot(23, leds[20]);
+  Slot temp22 = Slot(24, leds[21]);
+  Slot temp23 = Slot(25, leds[22]);
+  Slot temp24 = Slot(28, leds[23]);
+  Slot temp25 = Slot(29, leds[24]);
+
+
+  Slots.push_back(temp1);
+  Slots.push_back(temp2);
+  Slots.push_back(temp3);
+  Slots.push_back(temp4);
+  Slots.push_back(temp5);
+  Slots.push_back(temp6);
+  Slots.push_back(temp7);
+  Slots.push_back(temp8);
+  Slots.push_back(temp9);
+  Slots.push_back(temp10);
+  Slots.push_back(temp11);
+  Slots.push_back(temp12);
+  Slots.push_back(temp13);
+  Slots.push_back(temp14);
+  Slots.push_back(temp15);
+  Slots.push_back(temp16);
+  Slots.push_back(temp17);
+  Slots.push_back(temp18);
+  Slots.push_back(temp19);
+  Slots.push_back(temp20);
+  Slots.push_back(temp21);
+  Slots.push_back(temp22);
+  Slots.push_back(temp23);
+  Slots.push_back(temp24);
+  Slots.push_back(temp25);
+}
+
+void initializePinsTestBox() {
   for (int i = 0; i < 25; i++) {
     if (i == 1) {
       Slot tempSlotEdgeOne = Slot(30, leds[1]);
@@ -653,18 +716,27 @@ void setup()
     }
 
   }
+}
+
+void SimbleeForMobile_onDisconnect() {
+  disconnected = true;
+}
+
+void setup() {
+  Serial.begin(9600);
+  initializePins();
+  //initializePinsTestBox();
+
   FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
   FastLED.clear();
   FastLED.show();
-  //checkAllButtons();
   SimbleeForMobile.deviceName = "Wine";
-  SimbleeForMobile.advertisementData = "Chiller";
+  SimbleeForMobile.advertisementData = "HistoryFeature";
   SimbleeForMobile.domain = "FirstBuild4.simblee.com";
   SimbleeForMobile.begin();
 }
 
-void loop()
-{
+void loop() {
   checkAllButtons();
   checkAdd();
   checkRemove();
@@ -712,7 +784,11 @@ void loop()
             History.push_back(wine[bottle]);
           }
 
+  #ifdef DEMO 
+          leds[recalc(removeDetected)] = color2;
+  #else
           leds[removeDetected] = color2;
+  #endif
           FastLED.show();
           SimbleeForMobile.updateText(removePopUpRackNumber, ChillerSlot[removeDetected]);
           SimbleeForMobile.setVisible(insertScreen1, true);
@@ -895,12 +971,7 @@ void loop()
   SimbleeForMobile.process();
 }
 
-void ui_event(event_t &event)
-{
-  Serial.print("event.id = ");
-  Serial.println(event.id);
-  Serial.print("event.value = ");
-  Serial.println(event.value);
+void ui_event(event_t &event) {
   //SCREEN 2 EVENTS
   if (SimbleeForMobile.screen == 2)
   {
@@ -1121,8 +1192,7 @@ void ui_event(event_t &event)
 
 }
 
-void ui()
-{
+void ui() {
   switch (SimbleeForMobile.screen)
   {
     case 1:
@@ -1159,7 +1229,3 @@ void ui()
   }
 }
 
-void SimbleeForMobile_onDisconnect() {
-  disconnected = true;
-  updatePage = true;
-}
