@@ -655,13 +655,10 @@ void removeBottle() {
   SimbleeForMobile.setVisible(removeScreen3, false);
   SimbleeForMobile.showScreen(2);
 }
+
 // Inializing vector of Slots for TESTBOX units.
 //   Should not have problems with corresponding
 //   switch and led positions.
-void setup()
-{
-  //Serial.begin(9600);
-
 void initializePins() {
   Slot temp1 = Slot(2, leds[0]);
   Slot temp2 = Slot(3, leds[1]);
@@ -743,14 +740,13 @@ void SimbleeForMobile_onDisconnect() {
 }
 
 void setup() {
-  Serial.begin(9600);
+//  Serial.begin(9600);
   initializePins();
   //initializePinsTestBox();
 
-  FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
+  FastLED.addLeds<WS2812, LED_PIN, RGB>(leds, NUM_LEDS);
   FastLED.clear();
   FastLED.show();
-  //checkAllButtons();
   SimbleeForMobile.deviceName = "Wine";
   SimbleeForMobile.advertisementData = "Chiller";
   SimbleeForMobile.domain = "FirstBuild4.simblee.com";
@@ -900,12 +896,12 @@ void loop() {
       if (updatePage == true)
       {
         SimbleeForMobile.updateValue(screen6pageValue, historyPage);
-        Serial.println(historyPage);
+        //Serial.println(historyPage);
         int tempHistorysize = History.size();
-        Serial.println(History.size());
+        //Serial.println(History.size());
         tempHistorysize -= ((historyPage - 1) * 5);
         for (int i = 0; i < constrain(tempHistorysize, 0, 5); i++) {
-          Serial.println(History[i + ((historyPage - 1) * 5)].getName());
+          //Serial.println(History[i + ((historyPage - 1) * 5)].getName());
           SimbleeForMobile.updateText(HistoryVineyardUI[i], History[i + ((historyPage - 1) * 5)].getVineyard());
           SimbleeForMobile.updateText(HistoryWineName1UI[i], History[i + ((historyPage - 1) * 5)].getName());
           SimbleeForMobile.updateText(HistoryWineName2UI[i], History[i + ((historyPage - 1) * 5)].getYear());
@@ -1002,10 +998,10 @@ void loop() {
 }
 
 void ui_event(event_t &event) {
-  Serial.print("event.id = ");
-  Serial.println(event.id);
-  Serial.print("event.value = ");
-  Serial.println(event.value);
+  //Serial.print("event.id = ");
+  //Serial.println(event.id);
+  //Serial.print("event.value = ");
+  //Serial.println(event.value);
   //SCREEN 2 EVENTS
   if (SimbleeForMobile.screen == 2)
   {
