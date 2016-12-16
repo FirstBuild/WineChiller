@@ -35,7 +35,7 @@
 #define numberOfWines 10
 #define INSERT_WINE_TIMEOUT 3000
 
-//#define DEMO 1
+#define DEMO 1
 
 
 #define WineSpashScreen 1
@@ -346,6 +346,7 @@ void addScreen() {
   }
   else if (wineChosen == 4) {
     SimbleeForMobile.imageSource(7, JPG, Martini2_jpg, Martini2_jpg_len);
+  }
   else if (wineChosen == 5) {
     SimbleeForMobile.imageSource(8, JPG, CoppolaCab2_jpg, CoppolaCab2_jpg_len);
   }
@@ -772,12 +773,12 @@ void SimbleeForMobile_onDisconnect() {
 
 void setup() {
   //  Serial.begin(9600);
-  //initializePins();
-  initializePinsTestBox();
+  initializePins();
+//  initializePinsTestBox();
   //comment out if not using testbox
-  FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
+//  FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
   //comment out if not using chiller
-  //FastLED.addLeds<WS2812, LED_PIN, RGB>(leds, NUM_LEDS);
+  FastLED.addLeds<WS2812, LED_PIN, RGB>(leds, NUM_LEDS);
   FastLED.clear();
   FastLED.show();
   SimbleeForMobile.deviceName = "Wine";
