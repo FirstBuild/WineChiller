@@ -346,7 +346,6 @@ void addScreen() {
   }
   else if (wineChosen == 4) {
     SimbleeForMobile.imageSource(7, JPG, Martini2_jpg, Martini2_jpg_len);
-  }
   else if (wineChosen == 5) {
     SimbleeForMobile.imageSource(8, JPG, CoppolaCab2_jpg, CoppolaCab2_jpg_len);
   }
@@ -476,7 +475,6 @@ void historyScreen() {
 
 void historydetailScreen() {
   SimbleeForMobile.beginScreen();
-
   //BACKGROUND
   SimbleeForMobile.drawRect(0, 0, 320, 480, GE_RED);
   SimbleeForMobile.drawText(90, 25, "History Details", WHITE, 25);
@@ -692,9 +690,6 @@ void removeBottle() {
   SimbleeForMobile.showScreen(2);
 }
 
-// Inializing vector of Slots for TESTBOX units.
-//   Should not have problems with corresponding
-//   switch and led positions.
 void initializePins() {
   Slot temp1 = Slot(2, leds[0]);
   Slot temp2 = Slot(3, leds[1]);
