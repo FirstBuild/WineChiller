@@ -37,7 +37,6 @@
 
 //#define DEMO 1
 
-
 #define WineSpashScreen 1
 #define ColumbiaCrest1 2
 #define ColumbiaCrest2 3
@@ -786,7 +785,7 @@ void setup() {
   FastLED.clear();
   FastLED.show();
   SimbleeForMobile.deviceName = "Wine";
-  SimbleeForMobile.advertisementData = "Chiller";
+  SimbleeForMobile.advertisementData = "HistoryFeature";
   SimbleeForMobile.domain = "FirstBuild4.simblee.com";
   SimbleeForMobile.begin();
 }
