@@ -18,6 +18,8 @@
 #include <vector>
 
 #include "WineImages.h"
+#include "camera_png.h"
+#include "winePhoto_jpg.h"
 
 #define GE_RED rgb(158,11,15)
 #define GE_YELLOW rgb(243,165,25)
@@ -35,7 +37,7 @@
 #define numberOfWines 10
 #define INSERT_WINE_TIMEOUT 3000
 
-#define DEMO 1
+//#define DEMO 1
 
 #define WineSpashScreen 1
 #define ColumbiaCrest1 2
@@ -86,7 +88,9 @@ uint8_t previousPage, nextPage, pageValue,
         HistoryVineyardUI[5], HistoryWineName1UI[5], HistoryWineName2UI[5], HistoryCountryUI[5], HistoryOverlayUI[5],
         consumeButton, giftButton, deleteButton, clickedOverlay2,
         HistoryVineyardUISingle, HistoryWineName1UISingle, HistoryWineName2UISingle, HistoryCountryUISingle, HistoryPriceUISingle, starsRectUISingle,
-        rate[5];
+        rate[5], toCameraScreenButton,
+        cameraButton, wineLabel, cameratext1, cameratext2, cameratext3, backButton, acceptButton,
+        addScreen1, addScreen2, addScreen3, addScreen4, addScreen5, addScreen6, addScreen7, addScreen8, addScreen9, addScreen10, addScreen11;
 
 int8_t winePage = 1,
        historyPage = 1,
@@ -115,9 +119,9 @@ Wine wine[25] = {Wine("Grand Estates", "Columbia Crest",  "2003", "Cabernet Sauv
                  Wine("Prieure de Cenac", "Chateau Saint-Didier-Parnac", "2014", "Malbec", "$7.98", -1, 0),
                  Wine("Reserva", "Perez Cruz", "2013", "Cabernet Sauvignon", "$14.46", -1, 0),
                  Wine("Proximo Roja", "Marquest De Riscal", "2010", "Spanish Red", "$9.48", -1, 0),
-                 Wine(),
-                 Wine(),
-                 Wine(),
+                 Wine("J. Lohr", "Seven Oaks", "2014", "Cabernet Sauvignon", "$14.99", -1, 0),
+                 Wine("Alma de Los Andes", "Reserva Malebec", "2012", "Malbec", "$17.06", -1, 0),
+                 Wine("Rapel Valley", "Dallas Conte", "2001", "Merlot", "$10.00",-1,0),
                  Wine(),
                  Wine(),
                  Wine(),
@@ -136,15 +140,15 @@ Wine wine[25] = {Wine("Grand Estates", "Columbia Crest",  "2003", "Cabernet Sauv
 int recalc(int test) {
   int ledPosition = test;
   int remainder = ledPosition % 5;
-  
+
   if (remainder == 0) {
-      ledPosition += 4;
+    ledPosition += 4;
   } else if (remainder == 1) {
-      ledPosition += 2;
+    ledPosition += 2;
   } else if (remainder == 3) {
-      ledPosition -= 2;
+    ledPosition -= 2;
   } else if (remainder == 4) {
-      ledPosition -= 4;
+    ledPosition -= 4;
   }
 
   return ledPosition;
@@ -221,6 +225,9 @@ void inventoryScreen() {
   char* segmentNames[] = {"Inventory", "History"};
   screen2Segment = SimbleeForMobile.drawSegment(80, 435, 160, segmentNames, countof(segmentNames), WHITE);
 
+  toCameraScreenButton = SimbleeForMobile.drawButton(230, 435, 100, "ADD", WHITE, 1);
+  SimbleeForMobile.setEvents(toCameraScreenButton, EVENT_PRESS);
+
   //BLUR SCREEN
   insertScreen1 = SimbleeForMobile.drawRect(0, 0, 320, 570, rgba(155, 155, 155, 50));
   SimbleeForMobile.setVisible(insertScreen1, false);
@@ -270,20 +277,25 @@ void addScreen() {
 
   //BACKGROUND
   SimbleeForMobile.drawRect(0, 0, 320, 480, GE_RED);
+  SimbleeForMobile.drawText(100, 25, "Wine Details", WHITE, 25);
   SimbleeForMobile.drawRect(0, 60, 320,  180, GE_LIGHTGRAY);
   SimbleeForMobile.drawImage(3, 0, 60);
   SimbleeForMobile.drawImage(4, 0, 60);
   SimbleeForMobile.drawImage(5, 0, 60);
   SimbleeForMobile.drawImage(6, 0, 60);
-  //SimbleeForMobile.drawImage(7,0,60);
+  SimbleeForMobile.drawImage(7, 0, 60);
+  SimbleeForMobile.drawImage(8, 0, 60);
+  SimbleeForMobile.drawImage(9, 0, 60);
+  SimbleeForMobile.drawImage(10, 0, 60);
+  SimbleeForMobile.drawImage(11, 0, 60);
 
   SimbleeForMobile.drawRect(0, 240, 320, 180, WHITE);
 
-  VineyardUISingle = SimbleeForMobile.drawText(30, 245, "Cherry Blossom", GE_LIGHTGRAY, 16);
-  WineName1UISingle = SimbleeForMobile.drawText(30, 262, "Central Otago", BLACK, 18);
-  WineName2UISingle = SimbleeForMobile.drawText(30, 280, "2014", BLACK, 18);
-  CountryUISingle = SimbleeForMobile.drawText(30, 300, "Pinot Noir", GE_LIGHTGRAY, 16);
-  PriceUISingle = SimbleeForMobile.drawText(200, 300, "$20.00", GE_LIGHTGRAY, 16);
+  VineyardUISingle = SimbleeForMobile.drawText(30, 245, "", GE_LIGHTGRAY, 16);
+  WineName1UISingle = SimbleeForMobile.drawText(30, 262, "", BLACK, 18);
+  WineName2UISingle = SimbleeForMobile.drawText(30, 280, "", BLACK, 18);
+  CountryUISingle = SimbleeForMobile.drawText(30, 300, "", GE_LIGHTGRAY, 16);
+  PriceUISingle = SimbleeForMobile.drawText(200, 300, "", GE_LIGHTGRAY, 16);
   //LOCATION TITLE
   SimbleeForMobile.drawText(250, 245, "LOCATION", GE_LIGHTGRAY, 12);
   //LOCATION
@@ -338,11 +350,24 @@ void addScreen() {
   else if (wineChosen == 3) {
     SimbleeForMobile.imageSource(6, JPG, LaTercera1_jpg, LaTercera1_jpg_len);
   }
-  //  else if (wineChosen == 4) {
-  //    //SimbleeForMobile.imageSource(7, JPG, Martini2_jpg, Martini2_jpg_len);
-  //  }
-  
-    
+  else if (wineChosen == 4) {
+    SimbleeForMobile.imageSource(7, JPG, Martini2_jpg, Martini2_jpg_len);
+  }
+  else if (wineChosen == 5) {
+    SimbleeForMobile.imageSource(8, JPG, CoppolaCab2_jpg, CoppolaCab2_jpg_len);
+  }
+  else if (wineChosen == 6) {
+    SimbleeForMobile.imageSource(9, JPG, Prieure2_jpg, Prieure2_jpg_len);
+  }
+  else if (wineChosen == 7) {
+    SimbleeForMobile.imageSource(10, JPG, PerezCruz2_jpg, PerezCruz2_jpg_len);
+  }
+  else if (wineChosen == 8) {
+    SimbleeForMobile.imageSource(11, JPG, Proximo2_jpg, Proximo2_jpg_len);
+  }
+
+
+
 }
 
 
@@ -360,24 +385,14 @@ void historyScreen() {
   SimbleeForMobile.drawRect(0, 277, 280, 70, WHITE);
   SimbleeForMobile.drawRect(0, 349, 280, 70, WHITE);
 
-  //IMAGES
-  //SimbleeForMobile.imageSource(ColumbiaCrest2,JPG,ColumbiaCrest2_jpg,ColumbiaCrest2_jpg_len);
-  //SimbleeForMobile.drawImage(ColumbiaCrest2,10,66);
-  SimbleeForMobile.drawRect(10, 66, 50, 60, BLACK);
-  //SimbleeForMobile.imageSource(Carmen2,JPG,Carmen2_jpg,Carmen2_jpg_len);
-  //SimbleeForMobile.drawImage(Carmen2,10,138);
-  SimbleeForMobile.drawRect(10, 138, 50, 60, BLACK);
-  //SimbleeForMobile.imageSource(CoppolaShiraz2,JPG,CoppolaShiraz2_jpg,CoppolaShiraz2_jpg_len);
-  //SimbleeForMobile.drawImage(CoppolaShiraz2,10,210);
-  SimbleeForMobile.drawRect(10, 210, 50, 60, BLACK);
-  //SimbleeForMobile.imageSource(LaTercera2,JPG,LaTercera2_jpg,LaTercera2_jpg_len);
-  //SimbleeForMobile.drawImage(LaTercera2,10,282);
-  SimbleeForMobile.drawRect(10, 282, 50, 60, BLACK);
-  //SimbleeForMobile.imageSource(Martini1,JPG,Martini1_jpg,Martini1_jpg_len);
-  //SimbleeForMobile.drawImage(Martini1,10,354);
-  SimbleeForMobile.drawRect(10, 354, 50, 60, BLACK);
+  SimbleeForMobile.imageSource(2, PNG, WineBottleImage_png, WineBottleImage_png_len);
+  SimbleeForMobile.drawImage(2, 25, 66);
+  SimbleeForMobile.drawImage(2, 25, 138);
+  SimbleeForMobile.drawImage(2, 25, 210);
+  SimbleeForMobile.drawImage(2, 25, 282);
+  SimbleeForMobile.drawImage(2, 25, 354);
 
-  SimbleeForMobile.imageSource(7, PNG, stars_png, stars_png_len);
+  SimbleeForMobile.imageSource(31, PNG, stars_png, stars_png_len);
 
 
   //TITLE
@@ -406,7 +421,7 @@ void historyScreen() {
 
     starsRect[i] = SimbleeForMobile.drawRect(190, boxY[i], 1, 19, YELLOW);
     SimbleeForMobile.setVisible(starsRect[i], false);
-    starsImg[i] = SimbleeForMobile.drawImage(7, 190, boxY[i]);
+    starsImg[i] = SimbleeForMobile.drawImage(31, 190, boxY[i]);
     SimbleeForMobile.setVisible(starsImg[i], false);
     HistoryOverlayUI[i] = SimbleeForMobile.drawRect(0, overlayY[i], 280, 80, rgba(0, 0, 0, 255));
     SimbleeForMobile.setEvents(HistoryOverlayUI[i], EVENT_PRESS);
@@ -470,24 +485,30 @@ void historydetailScreen() {
 
   //BACKGROUND
   SimbleeForMobile.drawRect(0, 0, 320, 480, GE_RED);
+  SimbleeForMobile.drawText(90, 25, "History Details", WHITE, 25);
+  SimbleeForMobile.drawRect(0, 60, 320,  180, GE_LIGHTGRAY);
   SimbleeForMobile.drawImage(3, 0, 60);
   SimbleeForMobile.drawImage(4, 0, 60);
   SimbleeForMobile.drawImage(5, 0, 60);
   SimbleeForMobile.drawImage(6, 0, 60);
-  //SimbleeForMobile.drawImage(7,0,60);
-  SimbleeForMobile.imageSource(7, PNG, stars_png, stars_png_len);
+  SimbleeForMobile.drawImage(7, 0, 60);
+  SimbleeForMobile.drawImage(8, 0, 60);
+  SimbleeForMobile.drawImage(9, 0, 60);
+  SimbleeForMobile.drawImage(10, 0, 60);
+  SimbleeForMobile.drawImage(11, 0, 60);
+  SimbleeForMobile.imageSource(31, PNG, stars_png, stars_png_len);
 
-  //SimbleeForMobile.drawRect(0, 60, 320,  180, GE_LIGHTGRAY);
+
   SimbleeForMobile.drawRect(0, 240, 320, 180, WHITE);
 
 
-  HistoryVineyardUISingle = SimbleeForMobile.drawText(30, 245, "Cherry Blossom", GE_LIGHTGRAY, 16);
-  HistoryWineName1UISingle = SimbleeForMobile.drawText(30, 262, "Central Otago", BLACK, 18);
-  HistoryWineName2UISingle = SimbleeForMobile.drawText(30, 280, "2014", BLACK, 18);
-  HistoryCountryUISingle = SimbleeForMobile.drawText(30, 300, "Pinot Noir", GE_LIGHTGRAY, 16);
-  HistoryPriceUISingle = SimbleeForMobile.drawText(200, 300, "$20.00", GE_LIGHTGRAY, 16);
+  HistoryVineyardUISingle = SimbleeForMobile.drawText(30, 245, "", GE_LIGHTGRAY, 16);
+  HistoryWineName1UISingle = SimbleeForMobile.drawText(30, 262, "", BLACK, 18);
+  HistoryWineName2UISingle = SimbleeForMobile.drawText(30, 280, "", BLACK, 18);
+  HistoryCountryUISingle = SimbleeForMobile.drawText(30, 300, "", GE_LIGHTGRAY, 16);
+  HistoryPriceUISingle = SimbleeForMobile.drawText(200, 300, "", GE_LIGHTGRAY, 16);
   starsRectUISingle = SimbleeForMobile.drawRect(205, 245, 1, 19, YELLOW);
-  SimbleeForMobile.drawImage(7, 205, 245);
+  SimbleeForMobile.drawImage(31, 205, 245);
 
   for (int i = 0; i < 5; i++) {
     rate[i] = SimbleeForMobile.drawRect(205 + (i * 16), 245, 16, 19, rgba(0, 0, 0, 255));
@@ -511,24 +532,91 @@ void historydetailScreen() {
   SimbleeForMobile.setEvents(returnButton, EVENT_PRESS);
 
   SimbleeForMobile.endScreen();
-  int wineChosen = clickedOverlay + ((winePage - 1) * 5);
-  if (wineChosen == 0) {
+  char* tempName = History[clickedOverlay2 + ((historyPage - 1) * 5)].getName();
+  if (tempName == "Grand Estates") {
     SimbleeForMobile.imageSource(3, JPG, ColumbiaCrest2_jpg, ColumbiaCrest2_jpg_len);
   }
-  else if (wineChosen == 1) {
+  else if (tempName == "Grand Reserva") {
     SimbleeForMobile.imageSource(4, JPG, Carmen1_jpg, Carmen1_jpg_len);
   }
-  else if (wineChosen == 2) {
+  else if (tempName == "Rosso & Blonco") {
     SimbleeForMobile.imageSource(5, JPG, CoppolaShiraz1_jpg, CoppolaShiraz1_jpg_len);
   }
-  else if (wineChosen == 3) {
+  else if (tempName == "Reserva Rioja") {
     SimbleeForMobile.imageSource(6, JPG, LaTercera1_jpg, LaTercera1_jpg_len);
   }
-  //  else if (wineChosen == 4) {
-  //    //SimbleeForMobile.imageSource(7, JPG, Martini2_jpg, Martini2_jpg_len);
-  //  }
-  else
-    SimbleeForMobile.drawRect(0, 60, 320,  180, GE_LIGHTGRAY);
+  else if (tempName == "Sonoma County") {
+    SimbleeForMobile.imageSource(7, JPG, Martini2_jpg, Martini2_jpg_len);
+  }
+  else if (tempName == "Diamond Collection Ivory") {
+    SimbleeForMobile.imageSource(8, JPG, CoppolaCab2_jpg, CoppolaCab2_jpg_len);
+  }
+  else if (tempName == "Prieure de Cenac") {
+    SimbleeForMobile.imageSource(9, JPG, Prieure2_jpg, Prieure2_jpg_len);
+  }
+  else if (tempName == "Reserva") {
+    SimbleeForMobile.imageSource(10, JPG, PerezCruz2_jpg, PerezCruz2_jpg_len);
+  }
+  else if (tempName == "Proximo Roja") {
+    SimbleeForMobile.imageSource(11, JPG, Proximo2_jpg, Proximo2_jpg_len);
+  }
+}
+
+void cameraScreen() {
+  SimbleeForMobile.beginScreen();
+  SimbleeForMobile.drawRect(0, 0, 320, 480, GE_RED);
+  SimbleeForMobile.imageSource(29, PNG, camera_png, camera_png_len);
+  cameraButton = SimbleeForMobile.drawImage(29, 125, 415);
+  SimbleeForMobile.setEvents(cameraButton, EVENT_PRESS);
+  SimbleeForMobile.drawRect(0, 60, 320, 360, GE_LIGHTGRAY);
+  SimbleeForMobile.drawRect(30, 90, 260, 300, GE_DARKGRAY);
+  SimbleeForMobile.drawRect(0, 480, 320, 90, WHITE);
+
+  //WINE
+  SimbleeForMobile.imageSource(28, JPG, winePhoto_jpg, winePhoto_jpg_len);
+  wineLabel = SimbleeForMobile.drawImage(28, 30, 90);
+  SimbleeForMobile.setVisible(wineLabel, false);
+
+  //Label
+  cameratext1 = SimbleeForMobile.drawText(118, 190, "POSITION THE", WHITE, 14);
+  cameratext2 = SimbleeForMobile.drawText(90, 200, "WINE LABEL", WHITE, 28);
+  cameratext3 = SimbleeForMobile.drawText(100, 230, "WITHIN THIS FRAME", WHITE, 14);
+
+
+  //BOTTOM MENU
+  backButton = SimbleeForMobile.drawButton(40, 390, 40, "BACK", WHITE, 1);
+  SimbleeForMobile.setEvents(backButton, EVENT_PRESS);
+
+  acceptButton = SimbleeForMobile.drawButton(220, 390, 60, "ACCEPT", WHITE, 1);
+  SimbleeForMobile.setEvents(acceptButton, EVENT_PRESS);
+  SimbleeForMobile.setVisible(acceptButton, false);
+
+
+  addScreen1 = SimbleeForMobile.drawRect(0, 0, 320, 480, GE_RED);
+  SimbleeForMobile.setVisible(addScreen1, false);
+  SimbleeForMobile.imageSource(8, JPG, CoppolaCab2_jpg, CoppolaCab2_jpg_len);
+  addScreen3 = SimbleeForMobile.drawImage(8, 0, 60);
+  addScreen4 = SimbleeForMobile.drawRect(0, 240, 320, 180, WHITE);
+  addScreen5 = SimbleeForMobile.drawText(30, 245, "Diamond Collection Ivory", GE_LIGHTGRAY, 16);
+  addScreen6 = SimbleeForMobile.drawText(30, 262, "Francis Ford Coppola", BLACK, 18);
+  addScreen7 = SimbleeForMobile.drawText(30, 280, "2013", BLACK, 18);
+  addScreen8 =  SimbleeForMobile.drawText(30, 300, "Cabernet Sauvignon", GE_LIGHTGRAY, 16);
+  addScreen9 = SimbleeForMobile.drawText(200, 300, "$14.98", GE_LIGHTGRAY, 16);
+  addScreen10 = SimbleeForMobile.drawButton(80, 380, 160, "ADD TO INVENTORY", BLACK, 1);
+  addScreen11 =  SimbleeForMobile.drawText(80, 385, "ADDED TO INVENTORY", GREEN);
+  
+  
+  SimbleeForMobile.setVisible(addScreen3, false);
+  SimbleeForMobile.setVisible(addScreen4, false);
+  SimbleeForMobile.setVisible(addScreen5, false);
+  SimbleeForMobile.setVisible(addScreen6, false);
+  SimbleeForMobile.setVisible(addScreen7, false);
+  SimbleeForMobile.setVisible(addScreen8, false);
+  SimbleeForMobile.setVisible(addScreen9, false);
+  SimbleeForMobile.setVisible(addScreen10, false);
+  SimbleeForMobile.setVisible(addScreen11, false);
+
+  SimbleeForMobile.endScreen();
 }
 
 void checkButtonState(Slot toButton, int cellID) {
@@ -567,11 +655,11 @@ void checkAdd() {
       currentButtonState[i] = nextButtonState[i];
       updatePage = true;
       addMode = 1;
-  #ifdef DEMO 
+#ifdef DEMO
       leds[recalc(addDetected)] = color;
-  #else
+#else
       leds[addDetected] = color;
-  #endif
+#endif
     }
   }
 }
@@ -579,9 +667,18 @@ void checkAdd() {
 void checkRemove() {
   for (int i = 0; i < 25; i++) {
     if (currentButtonState[i] > nextButtonState[i]) {
-      removeDetected = i;
-      currentButtonState[i] = nextButtonState[i];
-      updatePage = true;
+      if (addMode == 1) {
+        SimbleeForMobile.updateColor(screen2Background, GE_RED);
+        SimbleeForMobile.updateText(screen2Title, "Wine Inventory");
+        addMode = false;
+        addDetected = -1;
+        updatePage = true;
+      }
+      else {
+        removeDetected = i;
+        currentButtonState[i] = nextButtonState[i];
+        updatePage = true;
+      }
     }
   }
 }
@@ -605,11 +702,11 @@ void compareStates() {
     FastLED.show();
   }
   else {
-  #ifdef DEMO 
+#ifdef DEMO
     leds[recalc(switchDetected)] = color;
-  #else
+#else
     leds[switchDetected] = color;
-  #endif
+#endif
     FastLED.show();
   }
 }
@@ -630,11 +727,11 @@ void removeBottle() {
   SimbleeForMobile.setVisible(removeScreen4, true);
   for (int i = 0; i < 25; i++) {
     if (ChillerSlot[i] == ChillerSlot[wine[clickedOverlay + ((winePage - 1) * 5)].getIndex()]) {
-  #ifdef DEMO 
+#ifdef DEMO
       leds[recalc(i)] = color2;
-  #else
+#else
       leds[i] = color2;
-  #endif
+#endif
       break;
     }
   }
@@ -742,11 +839,13 @@ void SimbleeForMobile_onDisconnect() {
 }
 
 void setup() {
-//  Serial.begin(9600);
-  initializePins();
-  //initializePinsTestBox();
-
-  FastLED.addLeds<WS2812, LED_PIN, RGB>(leds, NUM_LEDS);
+  //  Serial.begin(9600);
+  //initializePins();
+  initializePinsTestBox();
+  //comment out if not using testbox
+  FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
+  //comment out if not using chiller
+  //FastLED.addLeds<WS2812, LED_PIN, RGB>(leds, NUM_LEDS);
   FastLED.clear();
   FastLED.show();
   SimbleeForMobile.deviceName = "Wine";
@@ -803,11 +902,11 @@ void loop() {
             History.push_back(wine[bottle]);
           }
 
-  #ifdef DEMO 
+#ifdef DEMO
           leds[recalc(removeDetected)] = color2;
-  #else
+#else
           leds[removeDetected] = color2;
-  #endif
+#endif
           FastLED.show();
           delay(10);//give time for led to turn on
           SimbleeForMobile.updateText(removePopUpRackNumber, ChillerSlot[removeDetected]);
@@ -908,7 +1007,7 @@ void loop() {
           SimbleeForMobile.updateText(HistoryWineName1UI[i], History[i + ((historyPage - 1) * 5)].getName());
           SimbleeForMobile.updateText(HistoryWineName2UI[i], History[i + ((historyPage - 1) * 5)].getYear());
           SimbleeForMobile.updateText(HistoryCountryUI[i], History[i + ((historyPage - 1) * 5)].getwineType());
-          
+
           if (History[i + ((historyPage - 1) * 5)].getRating() == 1) {
             SimbleeForMobile.updateW(starsRect[i], 16);
           }
@@ -925,11 +1024,11 @@ void loop() {
             SimbleeForMobile.updateW(starsRect[i], 80);
           }
           else
-            SimbleeForMobile.updateW(starsRect[i],1);
-          
-          SimbleeForMobile.setVisible(starsRect[i],true);
+            SimbleeForMobile.updateW(starsRect[i], 1);
+
+          SimbleeForMobile.setVisible(starsRect[i], true);
           SimbleeForMobile.setVisible(starsImg[i], true);
-          
+
           if (History[i + ((historyPage - 1) * 5)].getIndex() == -1) {
             SimbleeForMobile.updateText(WWDWTB[i], "");
           }
@@ -940,17 +1039,17 @@ void loop() {
             SimbleeForMobile.updateText(WWDWTB[i], "CONSUMED");
           }
           else
-            SimbleeForMobile.updateText(WWDWTB[i],"");
+            SimbleeForMobile.updateText(WWDWTB[i], "");
           SimbleeForMobile.setVisible(HistoryOverlayUI[i], true);
 
-          
+
         }
         for (int i = 4; i >= constrain(tempHistorysize, 0, 5); i--) {
           SimbleeForMobile.updateText(HistoryVineyardUI[i], "");
           SimbleeForMobile.updateText(HistoryWineName1UI[i], "");
           SimbleeForMobile.updateText(HistoryWineName2UI[i], "");
           SimbleeForMobile.updateText(HistoryCountryUI[i], "");
-          SimbleeForMobile.setVisible(starsRect[i],false);
+          SimbleeForMobile.setVisible(starsRect[i], false);
           SimbleeForMobile.setVisible(starsImg[i], false);
           SimbleeForMobile.updateText(WWDWTB[i], "");
           SimbleeForMobile.setVisible(HistoryOverlayUI[i], false);
@@ -960,7 +1059,7 @@ void loop() {
     }
 
     //HISTORY DETAIL SCREEN
-    else if (SimbleeForMobile.screen = 7) {
+    else if (SimbleeForMobile.screen == 7) {
       SimbleeForMobile.updateText(HistoryVineyardUISingle, History[clickedOverlay2 + ((historyPage - 1) * 5)].getVineyard());
       SimbleeForMobile.updateText(HistoryWineName1UISingle, History[clickedOverlay2 + ((historyPage - 1) * 5)].getName());
       SimbleeForMobile.updateText(HistoryWineName2UISingle, History[clickedOverlay2 + ((historyPage - 1) * 5)].getYear());
@@ -1105,6 +1204,10 @@ void ui_event(event_t &event) {
         SimbleeForMobile.showScreen(6);
       }
     }
+
+    else if (event.id == toCameraScreenButton) {
+      SimbleeForMobile.showScreen(3);
+    }
   }
   //SCREEN 5 EVENTS
   else if (SimbleeForMobile.screen == 5)
@@ -1222,6 +1325,39 @@ void ui_event(event_t &event) {
 
   }
 
+  else if (SimbleeForMobile.screen == 3) {
+    if (event.id == cameraButton) {
+      SimbleeForMobile.setVisible(cameratext1, false);
+      SimbleeForMobile.setVisible(cameratext2, false);
+      SimbleeForMobile.setVisible(cameratext3, false);
+      SimbleeForMobile.setVisible(wineLabel, true);
+      SimbleeForMobile.setVisible(acceptButton, true);
+    }
+    else if (event.id == acceptButton) {
+      SimbleeForMobile.setVisible(addScreen1, true);
+      SimbleeForMobile.setVisible(addScreen2, true);
+      SimbleeForMobile.setVisible(addScreen3, true);
+      SimbleeForMobile.setVisible(addScreen4, true);
+      SimbleeForMobile.setVisible(addScreen5, true);
+      SimbleeForMobile.setVisible(addScreen6, true);
+      SimbleeForMobile.setVisible(addScreen7, true);
+      SimbleeForMobile.setVisible(addScreen8, true);
+      SimbleeForMobile.setVisible(addScreen9, true);
+      SimbleeForMobile.setVisible(addScreen10, true);
+    }
+    else if(event.id == addScreen10){
+    SimbleeForMobile.setVisible(addScreen10,false);
+    SimbleeForMobile.setVisible(addScreen11,true);
+    delay(3000);
+    updatePage = true;
+    SimbleeForMobile.showScreen(2);
+  }
+  else if(event.id == backButton){
+    updatePage = true;
+    SimbleeForMobile.showScreen(2);
+  }
+  }
+
 }
 
 void ui() {
@@ -1238,6 +1374,7 @@ void ui() {
       break;
 
     case 3:
+      cameraScreen();
       break;
 
     case 4:
