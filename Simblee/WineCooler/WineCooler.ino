@@ -35,7 +35,7 @@
 #define NUM_LEDS 25
 
 #define numberOfWines 10
-#define INSERT_WINE_TIMEOUT 3000
+#define INSERT_WINE_TIMEOUT 30000
 
 //#define DEMO 1
 
@@ -69,6 +69,7 @@ bool disconnected = false;
 bool initialized = false;
 bool updatePage = true;
 bool addMode = false;
+bool addPopUpShown = false;
 
 uint32_t nextButtonState[25];
 uint32_t currentButtonState[25];
@@ -122,7 +123,7 @@ Wine wine[25] = {Wine("Grand Estates", "Columbia Crest",  "2003", "Cabernet Sauv
                  Wine("Proximo Roja", "Marquest De Riscal", "2010", "Spanish Red", "$9.48", -1, 0),
                  Wine("J. Lohr", "Seven Oaks", "2014", "Cabernet Sauvignon", "$14.99", -1, 0),
                  Wine("Alma de Los Andes", "Reserva Malebec", "2012", "Malbec", "$17.06", -1, 0),
-                 Wine("Rapel Valley", "Dallas Conte", "2001", "Merlot", "$10.00",-1,0),
+                 Wine("Rapel Valley", "Dallas Conte", "2001", "Merlot", "$10.00", -1, 0),
                  Wine(),
                  Wine(),
                  Wine(),
@@ -605,8 +606,8 @@ void cameraScreen() {
   addScreen9 = SimbleeForMobile.drawText(200, 300, "$14.98", GE_LIGHTGRAY, 16);
   addScreen10 = SimbleeForMobile.drawButton(80, 380, 160, "ADD TO INVENTORY", BLACK, 1);
   addScreen11 =  SimbleeForMobile.drawText(80, 385, "ADDED TO INVENTORY", GREEN);
-  
-  
+
+
   SimbleeForMobile.setVisible(addScreen3, false);
   SimbleeForMobile.setVisible(addScreen4, false);
   SimbleeForMobile.setVisible(addScreen5, false);
@@ -872,25 +873,28 @@ void loop() {
 
         SimbleeForMobile.updateValue(pageValue, winePage);
         if (addDetected >= 0) {
-          FastLED.show();
-          SimbleeForMobile.updateText(addPopUpRackNumber, ChillerSlot[addDetected]);
-          SimbleeForMobile.setVisible(insertScreen1, true);
-          SimbleeForMobile.setVisible(insertScreen2, true);
-          SimbleeForMobile.setVisible(addPopUpDetectedText, true);
-          SimbleeForMobile.setVisible(addPopUpRackText, true);
-          SimbleeForMobile.setVisible(addPopUpRackNumber, true);
-          SimbleeForMobile.setVisible(addPopUpSelectText, true);
-          delay(3000);
-          SimbleeForMobile.setVisible(insertScreen1, false);
-          SimbleeForMobile.setVisible(insertScreen2, false);
-          SimbleeForMobile.setVisible(addPopUpDetectedText, false);
-          SimbleeForMobile.setVisible(addPopUpRackText, false);
-          SimbleeForMobile.setVisible(addPopUpRackNumber, false);
-          SimbleeForMobile.setVisible(addPopUpSelectText, false);
-          SimbleeForMobile.updateColor(screen2Background, BLUE);
-          SimbleeForMobile.updateText(screen2Title, "Select Wine");
-          FastLED.clear();
-          FastLED.show();
+          if (addPopUpShown == false) {
+            FastLED.show();
+            SimbleeForMobile.updateText(addPopUpRackNumber, ChillerSlot[addDetected]);
+            SimbleeForMobile.setVisible(insertScreen1, true);
+            SimbleeForMobile.setVisible(insertScreen2, true);
+            SimbleeForMobile.setVisible(addPopUpDetectedText, true);
+            SimbleeForMobile.setVisible(addPopUpRackText, true);
+            SimbleeForMobile.setVisible(addPopUpRackNumber, true);
+            SimbleeForMobile.setVisible(addPopUpSelectText, true);
+            delay(3000);
+            SimbleeForMobile.setVisible(insertScreen1, false);
+            SimbleeForMobile.setVisible(insertScreen2, false);
+            SimbleeForMobile.setVisible(addPopUpDetectedText, false);
+            SimbleeForMobile.setVisible(addPopUpRackText, false);
+            SimbleeForMobile.setVisible(addPopUpRackNumber, false);
+            SimbleeForMobile.setVisible(addPopUpSelectText, false);
+            SimbleeForMobile.updateColor(screen2Background, BLUE);
+            SimbleeForMobile.updateText(screen2Title, "Select Wine");
+            //            FastLED.clear();
+            //            FastLED.show();
+            addPopUpShown = true;
+          }
         }
         if (removeDetected >= 0) {
           int bottle;
@@ -1135,6 +1139,9 @@ void ui_event(event_t &event) {
         wine[clickedOverlay + ((winePage - 1) * 5)].setIndex(addDetected);
         addMode = false;
         addDetected = -1;
+        addPopUpShown = false;
+        FastLED.clear();
+        FastLED.show();
         updatePage = true;
       }
     }
@@ -1148,7 +1155,11 @@ void ui_event(event_t &event) {
         SimbleeForMobile.updateText(screen2Title, "Wine Inventory");
         wine[clickedOverlay + ((winePage - 1) * 5)].setIndex(addDetected);
         addMode = false;
+
         addDetected = -1;
+        addPopUpShown = false;
+        FastLED.clear();
+        FastLED.show();
         updatePage = true;
       }
 
@@ -1164,6 +1175,9 @@ void ui_event(event_t &event) {
         wine[clickedOverlay + ((winePage - 1) * 5)].setIndex(addDetected);
         addMode = false;
         addDetected = -1;
+        addPopUpShown = false;
+        FastLED.clear();
+        FastLED.show();
         updatePage = true;
       }
     }
@@ -1178,6 +1192,9 @@ void ui_event(event_t &event) {
         wine[clickedOverlay + ((winePage - 1) * 5)].setIndex(addDetected);
         addMode = false;
         addDetected = -1;
+        addPopUpShown = false;
+        FastLED.clear();
+        FastLED.show();
         updatePage = true;
       }
     }
@@ -1192,6 +1209,9 @@ void ui_event(event_t &event) {
         wine[clickedOverlay + ((winePage - 1) * 5)].setIndex(addDetected);
         addMode = false;
         addDetected = -1;
+        addPopUpShown = false;
+        FastLED.clear();
+        FastLED.show();
         updatePage = true;
       }
     }
@@ -1201,12 +1221,14 @@ void ui_event(event_t &event) {
         SimbleeForMobile.showScreen(2);
       }
       else if (event.value == 1) {
+        addPopUpShown = false;
         updatePage = true;
         SimbleeForMobile.showScreen(6);
       }
     }
 
     else if (event.id == toCameraScreenButton) {
+      addPopUpShown = false;
       SimbleeForMobile.showScreen(3);
     }
   }
@@ -1346,17 +1368,17 @@ void ui_event(event_t &event) {
       SimbleeForMobile.setVisible(addScreen9, true);
       SimbleeForMobile.setVisible(addScreen10, true);
     }
-    else if(event.id == addScreen10){
-    SimbleeForMobile.setVisible(addScreen10,false);
-    SimbleeForMobile.setVisible(addScreen11,true);
-    delay(3000);
-    updatePage = true;
-    SimbleeForMobile.showScreen(2);
-  }
-  else if(event.id == backButton){
-    updatePage = true;
-    SimbleeForMobile.showScreen(2);
-  }
+    else if (event.id == addScreen10) {
+      SimbleeForMobile.setVisible(addScreen10, false);
+      SimbleeForMobile.setVisible(addScreen11, true);
+      delay(3000);
+      updatePage = true;
+      SimbleeForMobile.showScreen(2);
+    }
+    else if (event.id == backButton) {
+      updatePage = true;
+      SimbleeForMobile.showScreen(2);
+    }
   }
 
 }
