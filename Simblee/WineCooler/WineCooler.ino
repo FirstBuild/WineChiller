@@ -37,7 +37,7 @@
 #define numberOfWines 10
 #define INSERT_WINE_TIMEOUT 30000
 
-//#define DEMO 1
+#define DEMO 1
 
 
 #define WineSpashScreen 1
@@ -648,16 +648,13 @@ void checkAllButtons() {
   initialized = true;
 }
 
-//  I've just used this function as an example to demonstrate the classes I've implemented.
-//    Remember: onPressed() returns true for a pressed button.
-//      Progressive presses will return false.
 void checkAdd() {
   for (int i = 0; i < 25; i++) {
     if (currentButtonState[i] < nextButtonState[i]) {
       addDetected = i;
       currentButtonState[i] = nextButtonState[i];
       updatePage = true;
-      addMode = 1;
+      addMode = true;
 #ifdef DEMO
       leds[recalc(addDetected)] = color;
 #else
@@ -670,7 +667,7 @@ void checkAdd() {
 void checkRemove() {
   for (int i = 0; i < 25; i++) {
     if (currentButtonState[i] > nextButtonState[i]) {
-      if (addMode == 1) {
+      if (addMode == true) {
         SimbleeForMobile.updateColor(screen2Background, GE_RED);
         SimbleeForMobile.updateText(screen2Title, "Wine Inventory");
         addMode = false;
@@ -752,8 +749,8 @@ void removeBottle() {
   SimbleeForMobile.setVisible(removeScreen1, false);
   SimbleeForMobile.setVisible(removeScreen2, false);
   SimbleeForMobile.setVisible(removeScreen3, false);
-  FastLED.clear();
-  FastLED.show();
+//  FastLED.clear();
+//  FastLED.show();
   delay(100);
   SimbleeForMobile.showScreen(2);
 }
@@ -840,18 +837,16 @@ void SimbleeForMobile_onDisconnect() {
 
 void setup() {
   //  Serial.begin(9600);
-  //initializePins();
-  initializePinsTestBox();
+  initializePins();
+  //initializePinsTestBox();
   //comment out if not using testbox
-  FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
+  //FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
   //comment out if not using chiller
-  //FastLED.addLeds<WS2812, LED_PIN, RGB>(leds, NUM_LEDS);
-  FastLED.clear();
-  FastLED.show();
+  FastLED.addLeds<WS2811, LED_PIN, RGB>(leds, NUM_LEDS);
   FastLED.clear();
   FastLED.show();
   SimbleeForMobile.deviceName = "Wine";
-  SimbleeForMobile.advertisementData = "HistoryFeature";
+  SimbleeForMobile.advertisementData = "Chiller";
   SimbleeForMobile.domain = "FirstBuild4.simblee.com";
   SimbleeForMobile.begin();
 }
@@ -870,7 +865,6 @@ void loop() {
     if (SimbleeForMobile.screen == 2) {
       if (updatePage == true)
       {
-
         SimbleeForMobile.updateValue(pageValue, winePage);
         if (addDetected >= 0) {
           if (addPopUpShown == false) {
@@ -1103,6 +1097,25 @@ void loop() {
   SimbleeForMobile.process();
 }
 
+void uiEventOverlayHelper(int inputOverlayIndex) {
+  int selectedWineIndex = inputOverlayIndex + ((winePage - 1) * 5);
+  updatePage = true;
+  if (!addMode) {
+    SimbleeForMobile.showScreen(5);
+  } else if ((addMode == true) && (wine[selectedWineIndex].getIndex() != -1)) {
+    return;
+  } else {
+    SimbleeForMobile.updateColor(screen2Background, GE_RED);
+    SimbleeForMobile.updateText(screen2Title, "Wine Inventory");
+    wine[selectedWineIndex].setIndex(addDetected);
+    addMode = false;
+    addDetected = -1;
+    addPopUpShown = false;
+    FastLED.clear();
+    FastLED.show();
+  }
+}
+
 void ui_event(event_t &event) {
   //Serial.print("event.id = ");
   //Serial.println(event.id);
@@ -1130,90 +1143,23 @@ void ui_event(event_t &event) {
     }
     else if (event.id == OverlayUI[0]) {
       clickedOverlay = 0;
-      updatePage = true;
-      if (!addMode)
-        SimbleeForMobile.showScreen(5);
-      else {
-        SimbleeForMobile.updateColor(screen2Background, GE_RED);
-        SimbleeForMobile.updateText(screen2Title, "Wine Inventory");
-        wine[clickedOverlay + ((winePage - 1) * 5)].setIndex(addDetected);
-        addMode = false;
-        addDetected = -1;
-        addPopUpShown = false;
-        FastLED.clear();
-        FastLED.show();
-        updatePage = true;
-      }
+      uiEventOverlayHelper(clickedOverlay);
     }
     else if (event.id == OverlayUI[1]) {
       clickedOverlay = 1;
-      updatePage = true;
-      if (!addMode)
-        SimbleeForMobile.showScreen(5);
-      else {
-        SimbleeForMobile.updateColor(screen2Background, GE_RED);
-        SimbleeForMobile.updateText(screen2Title, "Wine Inventory");
-        wine[clickedOverlay + ((winePage - 1) * 5)].setIndex(addDetected);
-        addMode = false;
-
-        addDetected = -1;
-        addPopUpShown = false;
-        FastLED.clear();
-        FastLED.show();
-        updatePage = true;
-      }
-
+      uiEventOverlayHelper(clickedOverlay);
     }
     else if (event.id == OverlayUI[2]) {
       clickedOverlay = 2;
-      updatePage = true;
-      if (!addMode)
-        SimbleeForMobile.showScreen(5);
-      else {
-        SimbleeForMobile.updateColor(screen2Background, GE_RED);
-        SimbleeForMobile.updateText(screen2Title, "Wine Inventory");
-        wine[clickedOverlay + ((winePage - 1) * 5)].setIndex(addDetected);
-        addMode = false;
-        addDetected = -1;
-        addPopUpShown = false;
-        FastLED.clear();
-        FastLED.show();
-        updatePage = true;
-      }
+      uiEventOverlayHelper(clickedOverlay);
     }
     else if (event.id == OverlayUI[3]) {
       clickedOverlay = 3;
-      updatePage = true;
-      if (!addMode)
-        SimbleeForMobile.showScreen(5);
-      else {
-        SimbleeForMobile.updateColor(screen2Background, GE_RED);
-        SimbleeForMobile.updateText(screen2Title, "Wine Inventory");
-        wine[clickedOverlay + ((winePage - 1) * 5)].setIndex(addDetected);
-        addMode = false;
-        addDetected = -1;
-        addPopUpShown = false;
-        FastLED.clear();
-        FastLED.show();
-        updatePage = true;
-      }
+      uiEventOverlayHelper(clickedOverlay);
     }
     else if (event.id == OverlayUI[4]) {
       clickedOverlay = 4;
-      updatePage = true;
-      if (!addMode)
-        SimbleeForMobile.showScreen(5);
-      else {
-        SimbleeForMobile.updateColor(screen2Background, GE_RED);
-        SimbleeForMobile.updateText(screen2Title, "Wine Inventory");
-        wine[clickedOverlay + ((winePage - 1) * 5)].setIndex(addDetected);
-        addMode = false;
-        addDetected = -1;
-        addPopUpShown = false;
-        FastLED.clear();
-        FastLED.show();
-        updatePage = true;
-      }
+      uiEventOverlayHelper(clickedOverlay);
     }
     else if (event.id == screen2Segment) {
       if (event.value == 0) {
